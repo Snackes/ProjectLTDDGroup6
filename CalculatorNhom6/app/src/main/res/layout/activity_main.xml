@@ -91,7 +91,5 @@
             android:background="@drawable/changebackground_toantu"
             android:textColor="#FFF"/>
     </TableRow>
-  
-
     <LinearLayout></LinearLayout>
 </TableLayout>
