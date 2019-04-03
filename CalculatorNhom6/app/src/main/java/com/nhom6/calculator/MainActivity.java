@@ -1,4 +1,4 @@
-package com.nhom6.calculator;
+package com.huyhoang.projectnhom_calculator;
 
 import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
