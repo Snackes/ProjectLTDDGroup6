@@ -18,6 +18,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     Button btnDel;
     boolean bflag=false;//cờ cho biết đã thực hiện 1 phép tính trước đó.
     boolean bflagLongDel=false;
+    boolean bflagDoubleEqual=false;
     ArrayList<String>ArrphepTinh=new ArrayList<>();
     String stemp="";
     String sphepTinh="";
@@ -53,14 +54,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
     DecimalFormat df= new DecimalFormat("###.#####");//định dạng lại số double
 
     //ToDo:xu li khi click vao cac button
-
-    public boolean kiemtraToanTu(String s, String s2){
-        if((s.equals(".")||s.equals("+")||s.equals("-")||s.equals("*")||s.equals("/"))
-                &&(s2.equals(".")||s2.equals("+")||s2.equals("-")||s2.equals("*")||s2.equals("/"))){
-            return true;
-        }
-        return false;
-    }
     @Override
     public void onClick(View v) {
         try {
@@ -72,25 +65,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     }
                     stemp="";
                     sphepTinh="";
-                    if(ArrphepTinh.size()>1) {
-                        //nếu 2 phần tử liên tiếp đều là toán tử thì ta xóa cả 2
-                        if (kiemtraToanTu(ArrphepTinh.get(ArrphepTinh.size() - 1), ArrphepTinh.get(ArrphepTinh.size() - 2)) == true) {
-                            ArrphepTinh.remove(ArrphepTinh.size() - 1);
-                            ArrphepTinh.remove(ArrphepTinh.size() - 1);
-                        }
-                        //ngược lại chỉ có 1 toán tử hoặc 1 tham số
-                        else {
-                            ArrphepTinh.remove(ArrphepTinh.size() - 1);
-                        }
-                    }
-                    else {//nếu có 1 số thì đó chính là kq ta chỉ việc xóa nó đi
-                        ArrphepTinh.remove(ArrphepTinh.size() - 1);
-                    }
+                    ArrphepTinh.remove(ArrphepTinh.size() - 1);
                     //lấy chuỗi hiển thị từ mảng để đưa lên màn hình
                     for(int i=0;i<ArrphepTinh.size();i++){
                         schuoiHienThi=schuoiHienThi+ArrphepTinh.get(i).toString();
                     }
                     tvhienThi.setText(schuoiHienThi);
+                    //nếu chuỗi hiển thị là rỗng thì xét tvketqua về 0
                     if(schuoiHienThi.equals("")){
                         tvketQua.setText("0");
                     }
@@ -101,26 +82,25 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     if(ArrphepTinh.size()==0){
                         break;
                     }
+                    if(bflagDoubleEqual==true){
+                        break;
+                    }
+                    bflagDoubleEqual=true;
                     bflag=true;
                     double kq=0;
                     int dem=ArrphepTinh.size();
                     while(dem!=1){
+                        //trường hợp có từ 2 phép tính trở lên
                         if(dem>3){
+                            //trường hơp phép tính thứ 2 là nhân hoặc chia
                             if(ArrphepTinh.get(3).equals("*")||ArrphepTinh.get(3).equals("/")){
                                 if (ArrphepTinh.get(3).equals("*")) {
-
                                     if(ArrphepTinh.size()<5){//tức size =4. VD: 1+3*
                                         kq=Double.parseDouble(ArrphepTinh.get(2));
                                     }
                                     else {
-                                        //kiểm tra sau phép tính có phải là số hay không
-                                        //nếu không. VD: 1+3**
-                                        if (ArrphepTinh.get(4).equals("*")) {
-                                            kq = Double.parseDouble(ArrphepTinh.get(2));//nếu không phải thì cho kq là tham số thứ nhất
-                                        } else {
-                                            //ngược lại thì ta tính toán bình thường, VD:1+3*4
-                                            kq = Double.parseDouble(ArrphepTinh.get(2)) * Double.parseDouble(ArrphepTinh.get(4));
-                                        }
+                                        //ngược lại thì ta tính toán bình thường, VD:1+3*4
+                                        kq = Double.parseDouble(ArrphepTinh.get(2)) * Double.parseDouble(ArrphepTinh.get(4));
                                     }
                                 }
                                 if(ArrphepTinh.get(3).equals("/")){
@@ -134,14 +114,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                             ArrphepTinh.clear();
                                             break;
                                         }
-                                        if (ArrphepTinh.get(4).equals("/")) {
-                                            kq = Double.parseDouble(ArrphepTinh.get(2));
-                                        } else {
+                                        else {
                                             kq = Double.parseDouble(ArrphepTinh.get(2)) / Double.parseDouble(ArrphepTinh.get(4));
                                         }
                                     }
                                 }
-                                if(ArrphepTinh.size()==4){
+                                if(ArrphepTinh.size()==4){  //vd:1+3* : thì ta xóa đi số 3 và *
                                     for(int i=0;i<2;){
                                         ArrphepTinh.remove(2);
                                         i++;
@@ -156,6 +134,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 ArrphepTinh.add(2,Double.toString(kq));
                                 dem=ArrphepTinh.size();
                             }
+                            //trường hơp phép tính thứ 2 là là cộng hoặc trừ thì ta thực hiện phép tính thứ nhất
                             else {
                                 if(ArrphepTinh.get(1).equals("+")){
                                     kq=Double.parseDouble(ArrphepTinh.get(0))+ Double.parseDouble(ArrphepTinh.get(2));
@@ -184,6 +163,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 dem=ArrphepTinh.size();
                             }
                         }
+                        //trường hợp chỉ có 1 phép tính
                         else {
                             if(ArrphepTinh.get(1).equals("+")){
                                 //nếu không có tham số thứ 2 thì cho kết quả bằng chính tham số thứ nhất
@@ -240,14 +220,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 //mac dinh la khi thao tac tren button them chuoi vao Array de lay cac phep tinh
                 default:
                     stemp = ((Button) v).getText().toString();
+                    bflagDoubleEqual=false;
                     //khong cho nhap toan tu va dau bang dau tien trong cac phep tinh
                     if(ArrphepTinh.size()==0){
                         if(stemp.equals(".")||stemp.equals("+")||stemp.equals("-")||stemp.equals("*")||stemp.equals("/")){
                             break;
                         }
                     }
-                    //khong phai la toan tu(tuc la so)
+                    //khi click vào button số
                     if(!stemp.equals("+")&&!stemp.equals("-")&&!stemp.equals("*")&&!stemp.equals("/")){
+                        //cờ bflag=true kiểm tra có phải đang thực hiện phép toán mới
                         if(bflag==true){
                             tvhienThi.setText("");
                             ArrphepTinh.clear();
@@ -255,6 +237,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             sphepTinh="";
                         }
 
+                        if(sphepTinh.equals("") && stemp.equals(".")){
+                            stemp="";
+                        }
+                        //không cho nhập cùng lúc hai dấu ".."
+                        if(stemp.equals(".")) {
+                            for (int i = 0; i < sphepTinh.length(); i++) {
+                                Character kitu = sphepTinh.charAt(i);
+                                if (kitu.toString().equals(".")) {
+                                    stemp = "";
+                                }
+                            }
+                        }
+                        if(sphepTinh!="") {
+                            if (Double.parseDouble(sphepTinh.toString()) > 99999999) {
+                                stemp = "";
+                            }
+                        }
                         sphepTinh=sphepTinh+stemp;
                         if((ArrphepTinh.size()%2!=0)){
                             ArrphepTinh.remove(ArrphepTinh.size()-1);
@@ -264,7 +263,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                             ArrphepTinh.add(sphepTinh);
                         }
                     }
-                    //la toan tu
+                    //click vào button toán tử
                     else {
                         if(bflag==true){
                             Double dKQ=Double.parseDouble(ArrphepTinh.get(0));
@@ -275,7 +274,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                                 ArrphepTinh.get(ArrphepTinh.size()-1).equals("*")||ArrphepTinh.get(ArrphepTinh.size()-1).equals("/")){
                             break;//neu bam cung luc 2 phep toan tu thi se khong xu li
                         }
-                        ArrphepTinh.add(stemp);
                         ArrphepTinh.add(stemp);
                         sphepTinh="";
                     }
